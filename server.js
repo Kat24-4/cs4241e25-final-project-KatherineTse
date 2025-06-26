@@ -18,7 +18,6 @@ app.use(express.urlencoded({extended: true}));
 const cookie = cookieSession({
     name: 'session',
     keys: ['tempKey1', 'tempKey2'],
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
 })
 
 app.use(cookie);

@@ -38,25 +38,25 @@ function Login() {
     }
 
     return <div>{ loggedIn ? <App /> :
-        <main className="d-flex flex-column">
-            <p className="m-auto mb-2 h5">Welcome to your personal score tracker! <br/><strong>Please log in to access your
+        <main className="flex-col">
+            <p className="text-center text-[22px] mt-3 mb-6">Welcome to your personal score tracker! <br/><strong>Please log in to access your
                 score data.</strong></p>
-            <p className="m-auto mb-3">If you do not have an account, enter a username and password and an account will be
-                created for you.</p>
 
-            <form id="login" action='/login' method='POST' className="m-auto bg-warning bg-opacity-25 p-4 rounded-2">
+            <div className={'flex justify-center justify-items-center'}>
+                <form id="login" action='/login' method='POST' className="bg-yellow-400/25 p-3 rounded-xl">
 
-                <h2>Login Form</h2>
-                <p>Please enter your username <br/>and password for the site.</p>
+                    <h2 className={'font-bold text-[24px] pb-1'}>Login Form</h2>
+                    <p className={'mb-3'}>Please enter your username <br/>and password for the site.</p>
 
-                <label htmlFor="username">Username:</label><br/>
-                <input id="username" type='text' className="mt-1 mb-4 ms-2" name='username' value={ username } onChange={ (e) => setUsername(e.target.value)  }/><br/>
-                <label htmlFor="password">Password:</label><br/>
-                <input id="password" type='password' className="mt-1 mb-4 ms-2" name='password' value={ password } onChange={ (e) => setPassword(e.target.value) }/><br/>
-                <button id="loginSubmit" type="submit" className="btn btn-primary" onClick={login}>Login</button>
-            </form>
+                    <label htmlFor="username">Username:</label><br/>
+                    <input id="username" type='text' className="mt-1 mb-4 ms-2 border-1 rounded-md p-1 bg-yellow-50 focus:outline-[#001CB6]" name='username' value={ username } onChange={ (e) => setUsername(e.target.value)  }/><br/>
+                    <label htmlFor="password">Password:</label><br/>
+                    <input id="password" type='password' className="mt-1 mb-4 ms-2 border-1 rounded-md p-1 bg-yellow-50 focus:outline-[#001CB6]" name='password' value={ password } onChange={ (e) => setPassword(e.target.value) }/><br/>
+                    <button id="loginSubmit" type="submit" className="p-2 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-700" onClick={login}>Login</button>
+                </form>
+            </div>
 
-            <div id="message" className="m-auto text-danger mt-1">
+            <div id="message" className="text-center text-red-700 mt-3">
                 <p>{message}</p>
             </div>
 

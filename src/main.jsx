@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './styles.css';
 import App from './App.jsx'
 import Login from './Login.jsx'
 
@@ -11,8 +12,6 @@ async function checkLogin() {
     })
 
     const result = await response.json();
-
-    console.log(result.loggedIn)
 
     loggedIn = result.loggedIn;
 }
