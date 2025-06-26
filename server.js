@@ -122,14 +122,14 @@ app.post ('/api/submit', (req, res) => {
         //console.log( data )
 
         // ... do something with the data here!!!
-        if ( data.compInfo && data.level && data.vaultScore && data.barScore && data.beamScore && data.floorScore ) {
+        if ( data.compInfo && data.year && data.program && data.level && data.vaultScore && data.barScore && data.beamScore && data.floorScore ) {
             // add new entry or update entry
             const totalScore = Number(data.vaultScore) + Number(data.barScore) + Number(data.beamScore) + Number(data.floorScore)
             data.totalScore = `${Math.round(totalScore * 1000) / 1000}`
 
             if ( data.id ) { // if there is an ID, update the corresponding information
                 //console.log(data)
-                const result = await collection.updateOne({user:currUser, id: data.id}, {$set:{compInfo:data.compInfo, level:data.level, vaultScore:data.vaultScore, barScore:data.barScore, beamScore:data.beamScore, floorScore:data.floorScore, totalScore:data.totalScore}})
+                const result = await collection.updateOne({user:currUser, id: data.id}, {$set:{compInfo:data.compInfo, year: data.year, program: data.program, level:data.level, vaultScore:data.vaultScore, barScore:data.barScore, beamScore:data.beamScore, floorScore:data.floorScore, totalScore:data.totalScore}})
                 console.log(result)
             } else { // if no existing ID, add new data entry
                 let finalData = {"user": currUser, "id": `${nextID}`, ...data}
@@ -163,6 +163,37 @@ app.post ('/api/submit', (req, res) => {
     })
 })
 
+// when user filters analytics
+app.post('/api/analytics', (req, res) => {
+    let dataString = ""
+
+    req.on("data", function( data ) {
+        dataString += data
+    })
+
+    req.on("end", async function () {
+        const data = JSON.parse( dataString )
+        let filteredData
+
+        if (data === "All") {
+            filteredData = await collection.find({user: currUser}).toArray()
+            res.json(filteredData)
+        } else if (data.level) {
+            filteredData = await collection.find({user: currUser, level: data.level}).toArray()
+            res.json(filteredData)
+        } else if (data.year) {
+            filteredData = await collection.find({user: currUser, year: data.year}).toArray()
+            res.json(filteredData)
+        } else if (data.program) {
+            filteredData = await collection.find({user: currUser, program: data.program}).toArray()
+            res.json(filteredData)
+        } else {
+            res.writeHead( 400, "Bad Request", {"Content-Type": "text/plain"} )
+            res.end( "400 Error: Bad Request" )
+        }
+    })
+})
+
 // when main page is first loaded, send data attached to the logged-in user or tell front-end java that there is no data because the user is new
 app.get('/api/loadData', async (req, res) => {
     if (newUser === true) {
@@ -186,30 +217,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'))
 })
 
-// // when user tries to go to website, send logged-in users to main page and non-logged in users to login page
-// app.get('/', (req, res) => {
-//     if(req.session.login === true) {
-//         res.redirect('/app.html');
-//     } else {
-//         res.redirect('/login.html');
-//     }
-// })
-//
-// // another catch to ensure user is logged in before accessing main page with data
-// app.use(function(req, res, next) {
-//     if( req.session.login === true )
-//         next()
-//     else
-//         res.redirect('/login.html')
-// })
-//
-// // path to main page
-// app.get('/app.html', (req, res) => {
-//     res.sendFile(__dirname + 'src/app.html')
-// })
-
 
 app.listen(3000, () => {
     console.log('Sever listening on port 3000')
 })
-//ViteExpress.listen( app, 3000 )

@@ -33,11 +33,13 @@ function App() {
     }
 
     const columns = [
-        {field: 'id', headerName: 'ID', width: 50, display: 'flex'},
-        {field: 'compInfo', headerName: 'Competition Information', width: 300, display: 'flex'},
-        {field: 'level', headerName: 'Level', width: 100, display: 'flex'},
+        {field: 'id', headerName: '#', width: 50, display: 'flex'},
+        {field: 'compInfo', headerName: 'Competition Information', width: 250, display: 'flex'},
+        {field: 'year', headerName: 'Year', width: 60, display: 'flex'},
+        {field: 'program', headerName: 'Program', width: 80, display: 'flex'},
+        {field: 'level', headerName: 'Level', width: 85, display: 'flex'},
         {field: 'vaultScore', headerName: 'Vault Score', width: 105, display: 'flex'},
-        {field: 'barScore', headerName: 'Bar Score', width: 105, display: 'flex'},
+        {field: 'barScore', headerName: 'Bar Score', width: 90, display: 'flex'},
         {field: 'beamScore', headerName: 'Beam Score', width: 105, display: 'flex'},
         {field: 'floorScore', headerName: 'Floor Score', width: 105, display: 'flex'},
         {field: 'totalScore', headerName: 'Total Score', width: 105, display: 'flex'},
@@ -71,6 +73,8 @@ function App() {
 
     const [id, setId] = useState('');
     const [compInfo, setCompInfo] = useState('');
+    const [year, setYear] = useState('');
+    const [program, setProgram] = useState('');
     const [level, setLevel] = useState('');
     const [vaultScore, setVaultScore] = useState('');
     const [barScore, setBarScore] = useState('');
@@ -82,6 +86,12 @@ function App() {
     const [hideAdd, setHideAdd] = useState(true);
     const [hideEdit, setHideEdit] = useState(true);
     const [hideDelete, setHideDelete] = useState(true);
+
+    const [years, setYears] = useState([]);
+    const [levels, setLevels] = useState([]);
+
+    const [hasExcel, setHasExcel] = useState(false);
+    const [hasJO, setHasJO] = useState(false);
 
     const [avgVault, setAvgVault] = useState('');
     const [avgBar, setAvgBar] = useState('');
@@ -105,7 +115,7 @@ function App() {
         event.preventDefault();
 
         // send object to server with the proper data format
-        const json = {"compInfo": compInfo, "level": level, "vaultScore": vaultScore, "barScore": barScore, "beamScore": beamScore, "floorScore": floorScore},
+        const json = {"compInfo": compInfo, "year": year, "program": program, "level": level, "vaultScore": vaultScore, "barScore": barScore, "beamScore": beamScore, "floorScore": floorScore},
             body = JSON.stringify(json)
 
         const response = await fetch("/api/submit", {
@@ -119,9 +129,9 @@ function App() {
         const data = JSON.parse(appdata)
 
         // send data sent from server to be displayed and reset the form
+        setHideAdd(true)
         parseData(data)
         clearForm()
-        setHideAdd(true)
     }
 
     /*
@@ -147,9 +157,9 @@ function App() {
         const data = JSON.parse(appdata)
 
         // send data sent from server to be displayed and reset the form
+        setHideDelete(true)
         parseData(data)
         setId('')
-        setHideDelete(true)
     }
 
     /*
@@ -162,7 +172,7 @@ function App() {
         event.preventDefault();
 
         // send object to server with the proper data format
-        const json = {"id": id, "compInfo": compInfo, "level": level, "vaultScore": vaultScore, "barScore": barScore, "beamScore": beamScore, "floorScore": floorScore},
+        const json = {"id": id, "compInfo": compInfo, "year": year, "program": program, "level": level, "vaultScore": vaultScore, "barScore": barScore, "beamScore": beamScore, "floorScore": floorScore},
             body = JSON.stringify(json)
 
         const response = await fetch("/api/submit", {
@@ -176,9 +186,9 @@ function App() {
         const data = JSON.parse(appdata)
 
         // send data sent from server to be displayed, reset the form, swap to AddEntry form
+        setHideEdit(true)
         parseData(data)
         clearForm()
-        setHideEdit(true)
     }
 
     /*
@@ -188,19 +198,25 @@ function App() {
     * Purpose: clear add form
     */
     const clearForm = () => {
-        setId('')
+        setId('');
         setCompInfo('');
+        setYear('');
+        setProgram('');
         setLevel('');
         setVaultScore('');
         setBarScore('');
         setBeamScore('');
         setFloorScore('');
 
+        document.getElementById('excel').checked = false
+        document.getElementById('jo').checked = false
+
         document.getElementById('bronze').checked = false
         document.getElementById('silver').checked = false
         document.getElementById('gold').checked = false
         document.getElementById('platinum').checked = false
         document.getElementById('diamond').checked = false
+        document.getElementById('sapphire').checked = false
     }
 
     /*
@@ -225,7 +241,6 @@ function App() {
             setHideAdd(true)
             setHideDelete(true)
             setHideEdit(false)
-            clearChecks()
             prefillEdit(prefillData); // send edit data to be prefilled into form
         }
     }
@@ -240,39 +255,94 @@ function App() {
         // assign each form element the corresponding value from the current data entry
         setId(info.id)
         setCompInfo(info.compInfo)
+        setYear(info.year)
+        setProgram(info.program)
         setLevel(info.level)
         setVaultScore(info.vaultScore)
         setBarScore(info.barScore)
         setBeamScore(info.beamScore)
         setFloorScore(info.floorScore)
-
-        // select the proper radio button to check based on current data
-        if (info.level === "Bronze") {
-            document.getElementById('editBronze').checked = true
-        } else if (info.level === "Silver") {
-            document.getElementById('editSilver').checked = true
-        } else if (info.level === "Gold") {
-            document.getElementById('editGold').checked = true
-        } else if (info.level === "Platinum") {
-            document.getElementById('editPlatinum').checked = true
-        } else if (info.level === "Diamond") {
-            document.getElementById('editDiamond').checked = true
-        } else if (info.level === "Sapphire") {
-            document.getElementById('editSapphire').checked = true
-        }
-    }
-
-    const clearChecks = () => {
-        document.getElementById('editBronze').checked = false
-        document.getElementById('editSilver').checked = false
-        document.getElementById('editGold').checked = false
-        document.getElementById('editPlatinum').checked = false
-        document.getElementById('editDiamond').checked = false
-        document.getElementById('editSapphire').checked = false
     }
 
     const parseData = (data) => {
         let newRows = []
+        let currYears = []
+        let currLevels = []
+
+        data.forEach((item) => {
+            let entry = {
+                id: item.id,
+                compInfo: item.compInfo,
+                year: item.year,
+                program: item.program,
+                level: item.level,
+                vaultScore: item.vaultScore,
+                barScore: item.barScore,
+                beamScore: item.beamScore,
+                floorScore: item.floorScore,
+                totalScore: item.totalScore,
+                editButton: item,
+            }
+
+            if(item.program === "Excel") {
+                setHasExcel(true);
+            }
+
+            if(item.program === "JO") {
+                setHasJO(true);
+            }
+
+            newRows.push(entry)
+
+            if (!currYears.includes(item.year)) {
+                currYears.push(item.year)
+            }
+
+            if (!currLevels.includes(item.level)) {
+                currLevels.push(item.level)
+            }
+        })
+
+        setRows(newRows)
+        currYears.sort()
+        setYears(currYears)
+        currLevels.sort()
+        setLevels(currLevels)
+        resetAnalytics()
+    }
+
+    const resetAnalytics = () => {
+        const select = document.getElementById('filter')
+        select.value = "All"
+        runAnalytics("All")
+    }
+
+    async function runAnalytics(filter) {
+        let body
+
+        if (filter === "All") {
+            body = JSON.stringify(filter)
+        } else if (years.includes(filter)) {
+            const json = {year: filter}
+            body = JSON.stringify(json)
+        } else if (levels.includes(filter)) {
+            const json = {level: filter}
+            body = JSON.stringify(json)
+        } else if ((filter === "Excel") || (filter === "JO")) {
+            const json = {program: filter}
+            body = JSON.stringify(json)
+        } else {
+            body = JSON.stringify("Error")
+        }
+
+        const response = await fetch("/api/analytics", {
+            method: "POST",
+            body
+        })
+
+        const appdata = await response.text()
+
+        const data = JSON.parse(appdata)
 
         let aVault = 0;
         let aBar = 0;
@@ -289,20 +359,6 @@ function App() {
         let num = 0;
 
         data.forEach((item) => {
-            let entry = {
-                id: item.id,
-                compInfo: item.compInfo,
-                level: item.level,
-                vaultScore: item.vaultScore,
-                barScore: item.barScore,
-                beamScore: item.beamScore,
-                floorScore: item.floorScore,
-                totalScore: item.totalScore,
-                editButton: item,
-            }
-
-            newRows.push(entry)
-
             aVault += Number(item.vaultScore)
             aBar += Number(item.barScore)
             aBeam += Number(item.beamScore)
@@ -310,14 +366,12 @@ function App() {
             aTotal += Number(item.totalScore)
             num++
 
-            if (item.vaultScore > tVault) { tVault = item.vaultScore }
-            if (item.barScore > tBar) { tBar = item.barScore }
-            if (item.beamScore > tBeam) { tBeam = item.beamScore }
-            if (item.floorScore > tFloor) { tFloor = item.floorScore }
-            if (item.totalScore > tTotal) { tTotal = item.totalScore }
+            if (Number(item.vaultScore) > tVault) { tVault = Number(item.vaultScore) }
+            if (Number(item.barScore) > tBar) { tBar = Number(item.barScore) }
+            if (Number(item.beamScore) > tBeam) { tBeam = Number(item.beamScore) }
+            if (Number(item.floorScore) > tFloor) { tFloor = Number(item.floorScore) }
+            if (Number(item.totalScore) > tTotal) { tTotal = Number(item.totalScore) }
         })
-
-        setRows(newRows)
 
         setAvgVault(`${Math.round(aVault/num * 1000) / 1000}`)
         setAvgBar(`${Math.round(aBar/num * 1000) / 1000}`)
@@ -354,26 +408,62 @@ function App() {
                             <h4 className={'font-bold text-xl pb-1'}>Add Entry Form</h4>
                         </div>
 
-                        <label htmlFor="compInfo">1. Enter the Name and Year of the Competition:</label><br/>
-                        <p className={'ms-3'}>(ex. Competition Classic 2025)</p>
+                        <label htmlFor="compInfo">1. Enter the Name of the Competition:</label><br/>
+                        <p className={'ms-3'}>(ex. Competition Classic)</p>
                         <input type="text" id="compInfo" className="mt-1 mb-4 ms-3 border-1 rounded-md p-1 bg-yellow-50 focus:outline-[#001CB6]" name="compInfo" value={compInfo} onChange={ (e) => setCompInfo(e.target.value) }/><br/>
 
-                        <label>2. Select the Level Competed:</label><br/>
-                        <input className="mb-2 ms-4" type="radio" name="level" id="bronze" value="Bronze" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="ps-1 mb-2" htmlFor="bronze">Bronze</label>
-                        <input className="mb-2 ms-2" type="radio" name="level" id="silver" value="Silver" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="ps-1 mb-2" htmlFor="silver">Silver</label>
-                        <input className="mb-2 ms-2" type="radio" name="level" id="gold" value="Gold" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="ps-1 mb-2" htmlFor="gold">Gold</label><br/>
-                        <input className="mb-4 ms-4" type="radio" name="level" id="platinum" value="Platinum" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="ps-1 mb-4" htmlFor="platinum">Platinum</label>
-                        <input className="mb-4 ms-2" type="radio" name="level" id="diamond" value="Diamond" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="ps-1 mb-4" htmlFor="diamond">Diamond</label>
-                        <input className="mb-4 ms-2" type="radio" name="level" id="sapphire" value="Sapphire" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="ps-1 mb-4" htmlFor="sapphire">Sapphire</label>
-                        <br/>
+                        <label htmlFor={"year"}>2. Enter the Year of the Competition:</label><br />
+                        <input type="number" id="year" className={'mt-1 mb-4 ms-3 border-1 rounded-md p-1 bg-yellow-50 focus:outline-[#001CB6]'} name="year" value={year} onChange={ (e) => setYear(e.target.value)}/><br />
 
-                        <label>3. Enter the Four Individual Event Scores:</label><br/>
+                        <label>3. Enter the Program Competed Under:</label><br />
+                        <input className={"mb-2 ms-4 mb-4"} type="radio" name="program" id="excel" value="Excel" onChange={ (e) => setProgram(e.target.value) } />
+                        <label className={"ps-1 mb-2 mb-4"} htmlFor={"excel"}>Excel</label>
+                        <input className={"mb-2 ms-2 mb-4"} type="radio" name="program" id="jo" value="JO" onChange={ (e) => setProgram(e.target.value) } />
+                        <label className={"ps-1 mb-2 mb-4"} htmlFor={"jo"}>Junior Olympics (JO)</label><br />
+
+                        <label>4. Select the Level Competed:</label><br/>
+                        { (program === "Excel") ?
+                            <div>
+                                <input className="mb-2 ms-4" type="radio" name="level" id="bronze" value="Bronze" onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="ps-1 mb-2" htmlFor="bronze">Bronze</label>
+                                <input className="mb-2 ms-2" type="radio" name="level" id="silver" value="Silver" onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="ps-1 mb-2" htmlFor="silver">Silver</label>
+                                <input className="mb-2 ms-2" type="radio" name="level" id="gold" value="Gold" onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="ps-1 mb-2" htmlFor="gold">Gold</label><br/>
+                                <input className="mb-4 ms-4" type="radio" name="level" id="platinum" value="Platinum" onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="ps-1 mb-4" htmlFor="platinum">Platinum</label>
+                                <input className="mb-4 ms-2" type="radio" name="level" id="diamond" value="Diamond" onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="ps-1 mb-4" htmlFor="diamond">Diamond</label>
+                                <input className="mb-4 ms-2" type="radio" name="level" id="sapphire" value="Sapphire" onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="ps-1 mb-4" htmlFor="sapphire">Sapphire</label>
+                            </div>
+                        : ( (program === "JO") ?
+                                <div>
+                                    <input className="ms-4 mb-2" type="radio" name="level" id="2" value="2" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="2">2</label>
+                                    <input className="ms-2 mb-2" type="radio" name="level" id="3" value="3" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="3">3</label>
+                                    <input className="ms-2 mb-2" type="radio" name="level" id="4" value="4" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="4">4</label>
+                                    <input className="ms-2 mb-2" type="radio" name="level" id="5" value="5" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="5">5</label>
+                                    <input className="ms-2 mb-2" type="radio" name="level" id="6" value="6" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="6">6</label><br />
+                                    <input className="ms-8 mb-3" type="radio" name="level" id="7" value="7" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-3" htmlFor="7">7</label>
+                                    <input className="ms-2 mb-3" type="radio" name="level" id="8" value="8" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-3" htmlFor="8">8</label>
+                                    <input className="ms-2 mb-3" type="radio" name="level" id="9" value="9" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-3" htmlFor="9">9</label>
+                                    <input className="ms-2 mb-3" type="radio" name="level" id="10" value="10" onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-3" htmlFor="10">10</label>
+                                </div>
+                            :
+                                <div className={'p-2'}></div>
+                            )
+                        }
+
+                        <label>5. Enter the Four Individual Event Scores:</label><br/>
                         <p className={'ms-3'}>(can have up to three decimal points, ex. 9.125)</p>
                         <div className="scores">
                             <label className="ms-2 mb-5 me-1" htmlFor="vaultScore">Vault:</label>
@@ -391,7 +481,7 @@ function App() {
 
                         <br/>
                         <button id="addSubmit" type="submit" className="me-2 p-2 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-700" onClick={addEntry}>Submit</button>
-                        <button id="clearForm" className="bg-yellow-400 p-2 rounded-xl font-bold hover:bg-yellow-500" onClick={clearForm}>Clear</button>
+                        <button id="clearForm" type="button" className="bg-yellow-400 p-2 rounded-xl font-bold hover:bg-yellow-500" onClick={clearForm}>Clear</button>
                     </form>
                 </div>
 
@@ -419,22 +509,59 @@ function App() {
                         <label htmlFor="num">Entry Number (Display Only, Cannot Edit)</label><br/>
                         <input type="number" id="num" className="mt-1 mb-4 ms-2 border-1 rounded-md p-1 bg-yellow-50 focus:outline-[#001CB6]" name="num" value={id} readOnly/><br/>
 
-                        <label htmlFor="editComp">Name and Year of the Competition:</label><br/>
+                        <label htmlFor="editComp">Name of the Competition:</label><br/>
                         <input type="text" id="editComp" className="mt-1 mb-4 ms-2 border-1 rounded-md p-1 bg-yellow-50 focus:outline-[#001CB6]" name="editComp" value={compInfo} onChange={ (e) => setCompInfo(e.target.value) }/><br/>
 
+                        <label htmlFor={"year"}>Year of the Competition:</label><br />
+                        <input type="number" id="year" className={'mt-1 mb-4 ms-3 border-1 rounded-md p-1 bg-yellow-50 focus:outline-[#001CB6]'} name="year" value={year} onChange={ (e) => setYear(e.target.value)}/><br />
+
+                        <label>Program Competed Under:</label><br />
+                        <input className={"mb-2 ms-4 mb-4"} type="radio" name="editProgram" id="editExcel" value="Excel" checked={program === "Excel"} onChange={ (e) => setProgram(e.target.value) } />
+                        <label className={"ps-1 mb-2 mb-4"} htmlFor={"editExcel"}>Excel</label>
+                        <input className={"mb-2 ms-2 mb-4"} type="radio" name="editProgram" id="editJO" value="JO" checked={program === "JO"} onChange={ (e) => setProgram(e.target.value) } />
+                        <label className={"ps-1 mb-2 mb-4"} htmlFor={"editJO"}>Junior Olympics (JO)</label><br />
+
                         <label>Level Competed:</label><br/>
-                        <input className="form-check-input mb-1 ms-2" type="radio" name="editLevel" id="editBronze" value="Bronze" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="form-check-label ps-1 mb-1" htmlFor="editBronze">Bronze</label>
-                        <input className="form-check-input mb-1 ms-2" type="radio" name="editLevel" id="editSilver" value="Silver" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="form-check-label ps-1 mb-1" htmlFor="editSilver">Silver</label>
-                        <input className="form-check-input mb-1 ms-2" type="radio" name="editLevel" id="editGold" value="Gold" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="form-check-label ps-1 mb-1" htmlFor="editGold">Gold</label><br/>
-                        <input className="form-check-input mb-4 ms-2" type="radio" name="editLevel" id="editPlatinum" value="Platinum" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="form-check-label ps-1 mb-4" htmlFor="editPlatinum">Platinum</label>
-                        <input className="form-check-input mb-4 ms-4" type="radio" name="editLevel" id="editDiamond" value="Diamond" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="form-check-label ps-1 mb-4" htmlFor="editDiamond">Diamond</label>
-                        <input className="mb-4 ms-2" type="radio" name="level" id="editSapphire" value="Sapphire" onChange={ (e) => setLevel(e.target.value) }/>
-                        <label className="ps-1 mb-4" htmlFor="sapphire">Sapphire</label>
+                        { (program === "Excel") ?
+                            <div>
+                                <input className="form-check-input mb-1 ms-2" type="radio" name="editLevel" id="editBronze" value="Bronze" checked={level === "Bronze"} onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="form-check-label ps-1 mb-1" htmlFor="editBronze">Bronze</label>
+                                <input className="form-check-input mb-1 ms-2" type="radio" name="editLevel" id="editSilver" value="Silver" checked={level === "Silver"} onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="form-check-label ps-1 mb-1" htmlFor="editSilver">Silver</label>
+                                <input className="form-check-input mb-1 ms-2" type="radio" name="editLevel" id="editGold" value="Gold" checked={level === "Gold"} onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="form-check-label ps-1 mb-1" htmlFor="editGold">Gold</label><br/>
+                                <input className="form-check-input mb-4 ms-2" type="radio" name="editLevel" id="editPlatinum" value="Platinum" checked={level === "Platinum"} onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="form-check-label ps-1 mb-4" htmlFor="editPlatinum">Platinum</label>
+                                <input className="form-check-input mb-4 ms-4" type="radio" name="editLevel" id="editDiamond" value="Diamond" checked={level === "Diamond"} onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="form-check-label ps-1 mb-4" htmlFor="editDiamond">Diamond</label>
+                                <input className="form-check-label mb-4 ms-2" type="radio" name="editLevel" id="editSapphire" value="Sapphire" checked={level === "Sapphire"} onChange={ (e) => setLevel(e.target.value) }/>
+                                <label className="ps-1 mb-4" htmlFor="sapphire">Sapphire</label>
+                            </div>
+                        : ( (program === "JO") ?
+                                <div>
+                                    <input className="ms-4 mb-2" type="radio" name="editLevel" id="edit2" value="2" checked={level === "2"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="edit2">2</label>
+                                    <input className="ms-2 mb-2" type="radio" name="editLevel" id="edit3" value="3" checked={level === "3"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="edit3">3</label>
+                                    <input className="ms-2 mb-2" type="radio" name="editLevel" id="edit4" value="4" checked={level === "4"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="edit4">4</label>
+                                    <input className="ms-2 mb-2" type="radio" name="editLevel" id="edit5" value="5" checked={level === "5"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="edit5">5</label>
+                                    <input className="ms-2 mb-2" type="radio" name="editLevel" id="edit6" value="6" checked={level === "6"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-2" htmlFor="edit6">6</label><br />
+                                    <input className="ms-8 mb-3" type="radio" name="editLevel" id="edit7" value="7" checked={level === "7"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-3" htmlFor="edit7">7</label>
+                                    <input className="ms-2 mb-3" type="radio" name="editLevel" id="edit8" value="8" checked={level === "8"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-3" htmlFor="edit8">8</label>
+                                    <input className="ms-2 mb-3" type="radio" name="editLevel" id="edit9" value="9" checked={level === "9"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-3" htmlFor="edit9">9</label>
+                                    <input className="ms-2 mb-3" type="radio" name="editLevel" id="edit10" value="10" checked={level === "10"} onChange={ (e) => setLevel(e.target.value) }/>
+                                    <label className="ps-1 mb-3" htmlFor="edit10">10</label>
+                                </div>
+                            :
+                                <div className='p-2'></div>
+                            )
+                        }
                         <br/>
 
                         <label>Scores:</label><br/>
@@ -491,6 +618,32 @@ function App() {
             <aside className={'flex-c ps-5 ms-10'}>
                 <h3 className={'text-2xl font-bold mb-3 text-center'}>Analytics</h3>
 
+                <div className="flex justify-center mb-2">
+                    <label htmlFor="filter" className={'me-2 mt-1.5'}>For:</label>
+                    <select id="filter" name="filter" className={'border-1 rounded-md bg-yellow-50 p-1 focus:outline-[#001CB6]'} onChange={ (e) => runAnalytics(e.target.value) }>
+                        <option key="all" value={"All"}>All Entries</option>
+                        { (hasExcel && hasJO) ?
+                                <optgroup label={"Program"}>
+                                    <option key="Excel" value={"Excel"}>Excel</option>
+                                    <option key={"JO"} value={"JO"}>JO</option>
+                                </optgroup>
+                            :
+                                null
+                        }
+                        <optgroup label={"Level"}>
+                            {levels.map((level) => {
+                                return <option key={level} value={level}>{level}</option>
+                            })}
+                        </optgroup>
+                        <optgroup label={"Year"}>
+                            {years.map((year) => {
+                                return <option key={year} value={year}>{year}</option>
+                            })}
+                        </optgroup>
+                    </select>
+                </div>
+
+
                 <div className={'flex'}>
                     <div className={'flex-c me-8'}>
                         <h4 className={'mx-2 text-xl font-bold'}>Average:</h4>
@@ -529,7 +682,7 @@ function App() {
                     </div>
 
                     <div className={'flex-c'}>
-                        <h4 className={'mx-2 text-xl font-bold text-end'}>Average:</h4>
+                        <h4 className={'mx-2 text-xl font-bold text-end'}>Top Scores:</h4>
                         <div className={'bg-[#fcc800]/25 p-2 mx-1 mb-3 rounded-xl'}>
                             <h4 className={'text-center font-bold text-xl'}>Vault Score</h4>
                             <p className={'text-center text-2xl'}>{topVault}</p>
