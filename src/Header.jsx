@@ -50,7 +50,7 @@ function Header() {
 
     return <header className="my-1">
         <div style={{height: "100px"}} className="flex m-2 px-3 py-1 bg-blue-500/50 rounded-xl">
-            <img id="gymnastHandstand" src="/assets/gymnastHandstand.png" className="flex-none py-1 px-2"
+            <img id="gymnastHandstand" src="public/assets/gymnastHandstand.png" className="flex-none py-1 px-2"
                  alt="Silhouette of a gymnast doing a handstand"/>
 
             <div className="headerCenter flex-1 content-center px-3">
