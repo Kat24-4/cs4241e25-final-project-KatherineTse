@@ -63,12 +63,10 @@ app.post ('/api/login', async (req, res) => {
 
     req.on( "end", async function() {
         const data = JSON.parse(dataString);
-        // console.log(data)
 
         // get user collection and pull all entries with the username the user entered
         const users = await client.db("a3").collection("users"),
             user = await users.find({username: data.username}).toArray();
-        //console.log(user)
 
         // handle various cases
         if (user.length === 0) { // if the array is empty then there is not an existing user with that username
@@ -146,7 +144,6 @@ app.post ('/api/submit', (req, res) => {
 
     req.on( "end", async function() {
         const data = JSON.parse( dataString )
-        //console.log( data )
 
         // ... do something with the data here!!!
         if ( data.compInfo && data.year && data.program && data.level && data.vaultScore && data.barScore && data.beamScore && data.floorScore ) {
@@ -155,7 +152,6 @@ app.post ('/api/submit', (req, res) => {
             data.totalScore = `${Math.round(totalScore * 1000) / 1000}`
 
             if ( data.id ) { // if there is an ID, update the corresponding information
-                //console.log(data)
                 const result = await collection.updateOne({user:currUser, id: data.id}, {$set:{compInfo:data.compInfo, year: data.year, program: data.program, level:data.level, vaultScore:data.vaultScore, barScore:data.barScore, beamScore:data.beamScore, floorScore:data.floorScore, totalScore:data.totalScore}})
                 console.log(result)
             } else { // if no existing ID, add new data entry
@@ -244,7 +240,6 @@ app.get('/api/checkLogin', (req, res) => {
 app.get('/api/getName', async (req, res) => {
     const col = await client.db("a3").collection("users")
     const user = await col.find({username: currUser}).toArray()
-    console.log(user[0])
     res.json(user[0].firstName)
 })
 

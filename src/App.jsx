@@ -1,6 +1,7 @@
-import {useState, useEffect, useRef} from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { DataGrid, gridClasses } from '@mui/x-data-grid'
-import {alpha, styled} from "@mui/material";
+import { alpha, styled } from "@mui/material";
+import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge'
 
 const ODD_OPACITY = 0.15;
 
@@ -117,6 +118,8 @@ function App() {
     const [topBeam, setTopBeam] = useState('');
     const [topFloor, setTopFloor] = useState('');
     const [topTotal, setTopTotal] = useState('');
+
+    const [showGraphs, setShowGraphs] = useState(false);
 
     /*
     * Name: addEntry
@@ -632,100 +635,325 @@ function App() {
             <aside className={'flex-c ps-5 ms-10'}>
                 <h3 className={'text-2xl font-bold mb-3 text-center'}>Analytics</h3>
 
-                <div className="flex justify-center mb-2">
-                    <label htmlFor="filter" className={'me-2 mt-1.5'}>For:</label>
-                    <select id="filter" name="filter" className={'border-1 rounded-md bg-yellow-50 p-1 focus:outline-[#001CB6]'} onChange={ (e) => runAnalytics(e.target.value) }>
-                        <option key="all" value={"All"}>All Entries</option>
-                        { (hasExcel && hasJO) ?
-                                <optgroup label={"Program"}>
-                                    <option key="Excel" value={"Excel"}>Excel</option>
-                                    <option key={"JO"} value={"JO"}>JO</option>
-                                </optgroup>
+                <div className="flex flex-row justify-center gap-8 items-center mb-4">
+                    <div className="flex justify-center">
+                        <select id="filter" name="filter" className={'border-1 rounded-md bg-yellow-400/25 p-2 focus:outline-[#001CB6]'} onChange={ (e) => runAnalytics(e.target.value) }>
+                            <option key="all" value={"All"}>All Entries</option>
+                            { (hasExcel && hasJO) ?
+                                    <optgroup label={"Program"}>
+                                        <option key="Excel" value={"Excel"}>Excel</option>
+                                        <option key={"JO"} value={"JO"}>JO</option>
+                                    </optgroup>
+                                :
+                                    null
+                            }
+                            <optgroup label={"Level"}>
+                                {levels.map((level) => {
+                                    return <option key={level} value={level}>{level}</option>
+                                })}
+                            </optgroup>
+                            <optgroup label={"Year"}>
+                                {years.map((year) => {
+                                    return <option key={year} value={year}>{year}</option>
+                                })}
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div className={'flex justify-center'}>
+                        { !showGraphs ?
+                            <button className={'p-2 hover:bg-yellow-400/50 bg-yellow-400/25 rounded-xl font-bold'} onClick={() => setShowGraphs(true)}>Display Graphs</button>
                             :
-                                null
+                            <button className={'p-2 hover:bg-yellow-400/50 bg-yellow-400/25 rounded-xl font-bold'} onClick={() => setShowGraphs(false)}>Hide Graphs</button>
                         }
-                        <optgroup label={"Level"}>
-                            {levels.map((level) => {
-                                return <option key={level} value={level}>{level}</option>
-                            })}
-                        </optgroup>
-                        <optgroup label={"Year"}>
-                            {years.map((year) => {
-                                return <option key={year} value={year}>{year}</option>
-                            })}
-                        </optgroup>
-                    </select>
-                </div>
-
-
-                <div className={'flex'}>
-                    <div className={'flex-c me-8'}>
-                        <h4 className={'mx-2 text-xl font-bold'}>Average:</h4>
-                        <div className={'bg-[#fcc800]/25 p-2 mx-1 mb-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Vault Score</h4>
-                            <p className={'text-center text-2xl'}>{avgVault}</p>
-                        </div>
-
-                        <div className={'bg-[#c8b640]/25 p-2 mx-1 my-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Bars Score</h4>
-                            <p className={'text-center text-2xl'}>{avgBar}</p>
-                        </div>
-
-                        <div className={'bg-[#94a480]/25 p-2 mx-1 my-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Beam Score</h4>
-                            <p className={'text-center text-2xl'}>{avgBeam}</p>
-                        </div>
-
-                        <div className={'bg-[#6092c0]/25 p-2 mx-1 my-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Floor Score</h4>
-                            <p className={'text-center text-2xl'}>{avgFloor}</p>
-                        </div>
-
-                        <div className={'bg-[#2b7fff]/25 p-2 mx-1 my-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Total Score:</h4>
-                            <p className={'text-center text-2xl'}>{avgTotal}</p>
-                        </div>
-                    </div>
-
-                    <div className={'me-8'}>
-                        <img src="src/assets/table.png" className="max-h-[90px] mt-8" alt="Vault Table Icon" />
-                        <img src="src/assets/bars.png" className="max-h-[90px] mt-3" alt="Bars Icon" />
-                        <img src="src/assets/beam.png" className="max-h-[90px] mt-1" alt="Beam Icon" />
-                        <img src="src/assets/floor.png" className="max-h-[75px] ms-1.5 mt-3" alt="Floor Icon" />
-                        <img src="src/assets/medal.png" className="max-h-[80px] ms-1.5 mt-5" alt="Medal Icon" />
-                    </div>
-
-                    <div className={'flex-c'}>
-                        <h4 className={'mx-2 text-xl font-bold text-end'}>Top Scores:</h4>
-                        <div className={'bg-[#fcc800]/25 p-2 mx-1 mb-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Vault Score</h4>
-                            <p className={'text-center text-2xl'}>{topVault}</p>
-                        </div>
-
-                        <div className={'bg-[#c8b640]/25 p-2 mx-1 my-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Bars Score</h4>
-                            <p className={'text-center text-2xl'}>{topBars}</p>
-                        </div>
-
-                        <div className={'bg-[#94a480]/25 p-2 mx-1 my-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Beam Score</h4>
-                            <p className={'text-center text-2xl'}>{topBeam}</p>
-                        </div>
-
-                        <div className={'bg-[#6092c0]/25 p-2 mx-1 my-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Floor Score</h4>
-                            <p className={'text-center text-2xl'}>{topFloor}</p>
-                        </div>
-
-                        <div className={'bg-[#2b7fff]/25 p-2 mx-1 my-3 rounded-xl'}>
-                            <h4 className={'text-center font-bold text-xl'}>Total Score:</h4>
-                            <p className={'text-center text-2xl'}>{topTotal}</p>
-                        </div>
                     </div>
                 </div>
+
+                { !showGraphs ?
+                    <div className={'flex'}>
+                        <div className={'flex-c me-8'}>
+                            <h4 className={'mx-2 text-xl font-bold'}>Average:</h4>
+                            <div className={'bg-[#fcc800]/25 p-2 mx-1 mb-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Vault Score</h4>
+                                <p className={'text-center text-2xl'}>{avgVault}</p>
+                            </div>
+
+                            <div className={'bg-[#c8b640]/25 p-2 mx-1 my-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Bars Score</h4>
+                                <p className={'text-center text-2xl'}>{avgBar}</p>
+                            </div>
+
+                            <div className={'bg-[#94a480]/25 p-2 mx-1 my-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Beam Score</h4>
+                                <p className={'text-center text-2xl'}>{avgBeam}</p>
+                            </div>
+
+                            <div className={'bg-[#6092c0]/25 p-2 mx-1 my-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Floor Score</h4>
+                                <p className={'text-center text-2xl'}>{avgFloor}</p>
+                            </div>
+
+                            <div className={'bg-[#2b7fff]/25 p-2 mx-1 my-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Total Score</h4>
+                                <p className={'text-center text-2xl'}>{avgTotal}</p>
+                            </div>
+                        </div>
+
+                        <div className={'me-8'}>
+                            <img src="src/assets/table.png" className="max-h-[90px] mt-8" alt="Vault Table Icon" />
+                            <img src="src/assets/bars.png" className="max-h-[90px] mt-3" alt="Bars Icon" />
+                            <img src="src/assets/beam.png" className="max-h-[90px] mt-1" alt="Beam Icon" />
+                            <img src="src/assets/floor.png" className="max-h-[75px] ms-1.5 mt-3" alt="Floor Icon" />
+                            <img src="src/assets/medal.png" className="max-h-[80px] ms-1.5 mt-5" alt="Medal Icon" />
+                        </div>
+
+                        <div className={'flex-c'}>
+                            <h4 className={'mx-2 text-xl font-bold text-end'}>Top Scores:</h4>
+                            <div className={'bg-[#fcc800]/25 p-2 mx-1 mb-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Vault Score</h4>
+                                <p className={'text-center text-2xl'}>{topVault}</p>
+                            </div>
+
+                            <div className={'bg-[#c8b640]/25 p-2 mx-1 my-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Bars Score</h4>
+                                <p className={'text-center text-2xl'}>{topBars}</p>
+                            </div>
+
+                            <div className={'bg-[#94a480]/25 p-2 mx-1 my-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Beam Score</h4>
+                                <p className={'text-center text-2xl'}>{topBeam}</p>
+                            </div>
+
+                            <div className={'bg-[#6092c0]/25 p-2 mx-1 my-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Floor Score</h4>
+                                <p className={'text-center text-2xl'}>{topFloor}</p>
+                            </div>
+
+                            <div className={'bg-[#2b7fff]/25 p-2 mx-1 my-3 rounded-xl'}>
+                                <h4 className={'text-center font-bold text-xl'}>Total Score</h4>
+                                <p className={'text-center text-2xl'}>{topTotal}</p>
+                            </div>
+                        </div>
+                    </div>
+                :
+                    <div className={'flex'}>
+                        <div className={'flex-c me-8'}>
+                            <h4 className={'mx-2 text-xl font-bold'}>Average:</h4>
+                            <div className={'bg-[#fcc800]/25 p-2 mx-1 mb-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Vault Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={avgVault} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#A38300',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: '#CACAC8',
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{avgVault}</p>
+                            </div>
+
+                            <div className={'bg-[#c8b640]/25 p-2 mx-1 my-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Bars Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={avgBar} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#7E7325',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: '#CACAC8',
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{avgBar}</p>
+                            </div>
+
+                            <div className={'bg-[#94a480]/25 p-2 mx-1 my-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Beam Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={avgBeam} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#536043',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: theme.palette.text.disabled,
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{avgBeam}</p>
+                            </div>
+
+                            <div className={'bg-[#6092c0]/25 p-2 mx-1 my-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Floor Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={avgFloor} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#2F5375',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: theme.palette.text.disabled,
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{avgFloor}</p>
+                            </div>
+
+                            <div className={'bg-[#2b7fff]/25 p-2 mx-1 my-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Total Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={avgTotal} valueMin={0} valueMax={40}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#0041A3',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: theme.palette.text.disabled,
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{avgTotal}</p>
+                            </div>
+                        </div>
+
+                        <div className={'me-8'}>
+                            <img src="src/assets/table.png" className="max-h-[90px] mt-18" alt="Vault Table Icon" />
+                            <img src="src/assets/bars.png" className="max-h-[90px] mt-18" alt="Bars Icon" />
+                            <img src="src/assets/beam.png" className="max-h-[90px] mt-16" alt="Beam Icon" />
+                            <img src="src/assets/floor.png" className="max-h-[75px] ms-1.5 mt-18" alt="Floor Icon" />
+                            <img src="src/assets/medal.png" className="max-h-[80px] ms-1.5 mt-20" alt="Medal Icon" />
+                        </div>
+
+                        <div className={'flex-c'}>
+                            <h4 className={'mx-2 text-xl font-bold text-end'}>Top Scores:</h4>
+                            <div className={'bg-[#fcc800]/25 p-2 mx-1 mb-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Vault Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={topVault} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#A38300',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: '#CACAC8',
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{topVault}</p>
+                            </div>
+
+                            <div className={'bg-[#c8b640]/25 p-2 mx-1 my-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Bars Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={topBars} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#7E7325',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: '#CACAC8',
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{topBars}</p>
+                            </div>
+
+                            <div className={'bg-[#94a480]/25 p-2 mx-1 my-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Beam Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={topBeam} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#536043',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: theme.palette.text.disabled,
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{topBeam}</p>
+                            </div>
+
+                            <div className={'bg-[#6092c0]/25 p-2 mx-1 my-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Floor Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={topFloor} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#2F5375',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: theme.palette.text.disabled,
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{topFloor}</p>
+                            </div>
+
+                            <div className={'bg-[#2b7fff]/25 p-2 mx-1 my-3 rounded-xl flex flex-col items-center'}>
+                                <h4 className={'text-center font-bold text-xl'}>Total Score</h4>
+                                <Gauge
+                                    width={120} height={70}
+                                    value={topTotal} valueMin={0} valueMax={10}
+                                    startAngle={-90} endAngle={90}
+                                    text={''}
+                                    cornerRadius="50%"
+                                    sx={(theme) => ({
+                                        [`& .${gaugeClasses.valueArc}`]: {
+                                            fill: '#0041A3',
+                                        },
+                                        [`& .${gaugeClasses.referenceArc}`]: {
+                                            fill: theme.palette.text.disabled,
+                                        },
+                                    })}
+                                />
+                                <p className={'text-center text-2xl'}>{topTotal}</p>
+                            </div>
+                        </div>
+                    </div>
+                }
             </aside>
         </div>
     </main>;
 }
-
 export default App
