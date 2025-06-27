@@ -700,11 +700,11 @@ function App() {
                         </div>
 
                         <div className={'me-8'}>
-                            <img src="src/assets/table.png" className="max-h-[90px] mt-8" alt="Vault Table Icon" />
-                            <img src="src/assets/bars.png" className="max-h-[90px] mt-3" alt="Bars Icon" />
-                            <img src="src/assets/beam.png" className="max-h-[90px] mt-1" alt="Beam Icon" />
-                            <img src="src/assets/floor.png" className="max-h-[75px] ms-1.5 mt-3" alt="Floor Icon" />
-                            <img src="src/assets/medal.png" className="max-h-[80px] ms-1.5 mt-5" alt="Medal Icon" />
+                            <img src="/table.png" className="max-h-[90px] mt-8" alt="Vault Table Icon" />
+                            <img src="/bars.png" className="max-h-[90px] mt-3" alt="Bars Icon" />
+                            <img src="/beam.png" className="max-h-[90px] mt-1" alt="Beam Icon" />
+                            <img src="/floor.png" className="max-h-[75px] ms-1.5 mt-3" alt="Floor Icon" />
+                            <img src="/medal.png" className="max-h-[80px] ms-1.5 mt-5" alt="Medal Icon" />
                         </div>
 
                         <div className={'flex-c'}>
@@ -841,11 +841,11 @@ function App() {
                         </div>
 
                         <div className={'me-8'}>
-                            <img src="src/assets/table.png" className="max-h-[90px] mt-18" alt="Vault Table Icon" />
-                            <img src="src/assets/bars.png" className="max-h-[90px] mt-18" alt="Bars Icon" />
-                            <img src="src/assets/beam.png" className="max-h-[90px] mt-16" alt="Beam Icon" />
-                            <img src="src/assets/floor.png" className="max-h-[75px] ms-1.5 mt-18" alt="Floor Icon" />
-                            <img src="src/assets/medal.png" className="max-h-[80px] ms-1.5 mt-20" alt="Medal Icon" />
+                            <img src="/table.png" className="max-h-[90px] mt-18" alt="Vault Table Icon" />
+                            <img src="/bars.png" className="max-h-[90px] mt-18" alt="Bars Icon" />
+                            <img src="/beam.png" className="max-h-[90px] mt-16" alt="Beam Icon" />
+                            <img src="/floor.png" className="max-h-[75px] ms-1.5 mt-18" alt="Floor Icon" />
+                            <img src="/medal.png" className="max-h-[80px] ms-1.5 mt-20" alt="Medal Icon" />
                         </div>
 
                         <div className={'flex-c'}>
