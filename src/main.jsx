@@ -19,7 +19,6 @@ async function checkLogin() {
 const root = createRoot(document.getElementById('root'))
 checkLogin()
     .then ( () => {
-        console.log(loggedIn);
         if (loggedIn) {
             root.render(
                 <StrictMode>

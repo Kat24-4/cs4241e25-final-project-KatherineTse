@@ -22,9 +22,6 @@ const cookie = cookieSession({
 
 app.use(cookie);
 
-// app.use(express.static('public'))
-// app.use(express.static('src'))
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const buildPath = path.join(__dirname, 'build');
@@ -75,19 +72,8 @@ app.post ('/api/login', async (req, res) => {
 
         // handle various cases
         if (user.length === 0) { // if the array is empty then there is not an existing user with that username
-            currUser = data.username;
-            newUser = true;
-            req.session.login = true;
-
-            // create new user account with the username and password entered by adding it to database and then redirect to main app page
-            client.db("a3").collection("users").insertOne({username: data.username, password: data.password})
-            .then(result => {
-                console.log(result);
-                res.json("success")
-            }) .catch(error => {
-                console.error(error);
-                res.json("Creation Failure")
-            })
+            req.session.login = false;
+            res.json("No User")
         } else if (user.length === 1) { // if there is one object in array, then user exists in database
             if (user[0].password === data.password) { // if the password matches the entered password, then successfully log user in and redirect to main page
                 currUser = data.username;
@@ -104,7 +90,48 @@ app.post ('/api/login', async (req, res) => {
     })
 })
 
+app.post ('/api/create', async (req, res) => {
+    let dataString = ""
+
+    req.on( "data", function( data ) {
+        dataString += data
+    })
+
+    req.on( "end", async function() {
+        const data = JSON.parse(dataString);
+
+        // get user collection and pull all entries with the username the user entered
+        const users = await client.db("a3").collection("users"),
+            user = await users.find({username: data.username}).toArray();
+
+        if (user.length === 0) {
+            if (data.firstName && data.lastName && data.username && data.password) {
+                currUser = data.username;
+                newUser = true;
+                req.session.login = true;
+
+                // create new user account with the username and password entered by adding it to database and then redirect to main app page
+                client.db("a3").collection("users").insertOne({firstName: data.firstName, lastName: data.lastName, username: data.username, password: data.password})
+                    .then(result => {
+                        console.log(result);
+                        res.json("success")
+                    }) .catch(error => {
+                    console.error(error);
+                    res.json("Creation Failure")
+                })
+            } else {
+                req.session.login = false
+                res.json("Missing Info")
+            }
+        } else {
+            req.session.login = false;
+            res.json("Already user")
+        }
+    })
+})
+
 // variables for data manipulation
+
 let collection
 let comps
 let nextID = 4; // track what the next entry ID will be
@@ -199,6 +226,7 @@ app.get('/api/loadData', async (req, res) => {
     if (newUser === true) {
         res.writeHead( 200, "OK", {"Content-Type": "text/plain" })
         res.end(JSON.stringify("new"))
+        newUser = false;
     } else {
         collection = await client.db("a3").collection("competitions")
         comps = await collection.find({user: currUser}).toArray()
@@ -211,6 +239,13 @@ app.get('/api/loadData', async (req, res) => {
 app.get('/api/checkLogin', (req, res) => {
     const loggedIn = (req.session.login === true)
     res.json({loggedIn})
+})
+
+app.get('/api/getName', async (req, res) => {
+    const col = await client.db("a3").collection("users")
+    const user = await col.find({username: currUser}).toArray()
+    console.log(user[0])
+    res.json(user[0].firstName)
 })
 
 app.get('/', (req, res) => {

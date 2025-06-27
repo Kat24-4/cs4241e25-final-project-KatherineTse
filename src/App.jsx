@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import {useState, useEffect, useRef} from 'react'
 import { DataGrid, gridClasses } from '@mui/x-data-grid'
 import {alpha, styled} from "@mui/material";
 
@@ -49,6 +49,16 @@ function App() {
     // Sends request to server to get data when website is first loaded.
     // Calls function to display data if there is any or sends alter to new user that their account has successfully been created
     useEffect( () => {
+        async function getName() {
+            const res = await fetch("/api/getName", {
+                method: 'GET',
+            })
+
+            const data = await res.text()
+            const currName = JSON.parse(data)
+
+            setName(currName)
+        }
 
         async function loadData() {
             // send Get request asking for data
@@ -67,9 +77,12 @@ function App() {
                 parseData(data);
             }
         }
+        getName()
         loadData()
 
     }, [])
+
+    const [name, setName] = useState('')
 
     const [id, setId] = useState('');
     const [compInfo, setCompInfo] = useState('');
@@ -387,9 +400,9 @@ function App() {
     }
 
     return <main className="formAndEntries flex-c justify-center items-center">
-        <p className="text-[22px] mb-4 mx-30"><strong>Welcome to your personal score tracker!</strong> You can add and delete
+        <p className="text-[22px] mb-4 mx-30"><strong>Welcome {name} to your personal score tracker!</strong> You can add and delete
             competitions by clicking on the buttons below and filling out the forms. All competitions added will be
-            displayed in the table below. The "Edit Entry" button, will open a form that will update entries stored.</p>
+            displayed in the table below. The "Edit Entry" button, will open a form that will update the entry shown in that row.</p>
 
         <div className={'flex flex-wrap justify-center mt-8'}>
             <section className={'flex-c'}>
@@ -610,6 +623,7 @@ function App() {
                                     width: 'fit-content',
                                 },
                             }}
+                            showToolbar
                         />
                     </div>
                 </div>
