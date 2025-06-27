@@ -247,7 +247,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'))
 })
 
-
 app.listen(3000, () => {
     console.log('Sever listening on port 3000')
 })

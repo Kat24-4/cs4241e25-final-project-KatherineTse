@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import Modal from '@mui/material/Modal'
 import Box from '@mui/material/Box'
+import gymnastHandstand from './assets/gymnastHandstand.png'
+import meSalute from './assets/meSalute.jpg'
+import meBackhandspring from './assets/meBackhandspring.jpg'
+import meDance from './assets/meDance.jpg'
 
 const style1 = {
     position: 'absolute',
@@ -32,9 +36,9 @@ function Header() {
     const closeWhy = () => setWhy(false);
 
     const photos = [
-        '/meSalute.jpg',
-        '/meBackhandspring.jpg',
-        '/meDance.jpg',
+        meSalute,
+        meBackhandspring,
+        meDance,
     ]
 
     const [curr, setCurr] = useState(0);
@@ -50,7 +54,7 @@ function Header() {
 
     return <header className="my-1">
         <div style={{height: "100px"}} className="flex m-2 px-3 py-1 bg-blue-500/50 rounded-xl">
-            <img id="gymnastHandstand" src="/gymnastHandstand.png" className="flex-none py-1 px-2"
+            <img id="gymnastHandstand" src={gymnastHandstand} className="flex-none py-1 px-2"
                  alt="Silhouette of a gymnast doing a handstand"/>
 
             <div className="headerCenter flex-1 content-center px-3">

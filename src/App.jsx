@@ -2,6 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import { DataGrid, gridClasses } from '@mui/x-data-grid'
 import { alpha, styled } from "@mui/material";
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge'
+import table from './assets/table.png'
+import bars from './assets/bars.png'
+import beam from './assets/beam.png'
+import floor from './assets/floor.png'
+import medal from './assets/medal.png'
 
 const ODD_OPACITY = 0.15;
 
@@ -700,11 +705,11 @@ function App() {
                         </div>
 
                         <div className={'me-8'}>
-                            <img src="/table.png" className="max-h-[90px] mt-8" alt="Vault Table Icon" />
-                            <img src="/bars.png" className="max-h-[90px] mt-3" alt="Bars Icon" />
-                            <img src="/beam.png" className="max-h-[90px] mt-1" alt="Beam Icon" />
-                            <img src="/floor.png" className="max-h-[75px] ms-1.5 mt-3" alt="Floor Icon" />
-                            <img src="/medal.png" className="max-h-[80px] ms-1.5 mt-5" alt="Medal Icon" />
+                            <img src={table} className="max-h-[90px] mt-8" alt="Vault Table Icon" />
+                            <img src={bars} className="max-h-[90px] mt-3" alt="Bars Icon" />
+                            <img src={beam} className="max-h-[90px] mt-1" alt="Beam Icon" />
+                            <img src={floor} className="max-h-[75px] ms-1.5 mt-3" alt="Floor Icon" />
+                            <img src={medal} className="max-h-[80px] ms-1.5 mt-5" alt="Medal Icon" />
                         </div>
 
                         <div className={'flex-c'}>
@@ -841,11 +846,11 @@ function App() {
                         </div>
 
                         <div className={'me-8'}>
-                            <img src="/table.png" className="max-h-[90px] mt-18" alt="Vault Table Icon" />
-                            <img src="/bars.png" className="max-h-[90px] mt-18" alt="Bars Icon" />
-                            <img src="/beam.png" className="max-h-[90px] mt-16" alt="Beam Icon" />
-                            <img src="/floor.png" className="max-h-[75px] ms-1.5 mt-18" alt="Floor Icon" />
-                            <img src="/medal.png" className="max-h-[80px] ms-1.5 mt-20" alt="Medal Icon" />
+                            <img src={table} className="max-h-[90px] mt-18" alt="Vault Table Icon" />
+                            <img src={bars} className="max-h-[90px] mt-18" alt="Bars Icon" />
+                            <img src={beam} className="max-h-[90px] mt-16" alt="Beam Icon" />
+                            <img src={floor} className="max-h-[75px] ms-1.5 mt-18" alt="Floor Icon" />
+                            <img src={medal} className="max-h-[80px] ms-1.5 mt-20" alt="Medal Icon" />
                         </div>
 
                         <div className={'flex-c'}>
